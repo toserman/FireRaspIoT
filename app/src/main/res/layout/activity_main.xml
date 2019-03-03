@@ -31,13 +31,13 @@
             android:id="@+id/pub_msg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Publish Message" />
+            android:text="Publish Message (OFF PC)" />
 
         <Button
             android:id="@+id/srv_stop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="STOP SERVER" />
+            android:text="STOP SERVER (CANCEL TURN OFF)" />
 
         <Button
             android:id="@+id/clear_textview"

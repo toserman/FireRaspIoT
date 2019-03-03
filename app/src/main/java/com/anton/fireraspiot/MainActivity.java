@@ -43,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
    // private final String BROKER_ADDRESS = "tcp://iot.eclipse.org:1883";
     private final String BROKER_ADDRESS = "tcp://test.mosquitto.org:1883";
     private final String TOPIC = "home/livingroom/pc";
+    private final String TURN_ON = "ON";
+    private final String TURN_OFF = "OFF";
+    private final String TURN_OFF_CANCEL = "CANCEL";
     private final MemoryPersistence persistence = new MemoryPersistence();
     public MqttAndroidClient mqttAndroidClient;
 
@@ -174,8 +177,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    public void newPublishMessage() {
-        MqttMessage message = new MqttMessage("Hello, I am Android Mqtt Client.".getBytes());
+    public void newPublishMessage(String msg) {
+        MqttMessage message = new MqttMessage(msg.getBytes());
         message.setQos(QOS);
         message.setRetained(false);
         try {
@@ -234,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.pub_msg:
                 Log.e(TAG, "Button: Publish Message");
                 //publishMessage();
-                newPublishMessage();
+                newPublishMessage(TURN_OFF);
 //                tview_log.setText("SERVER STARTED IP:" + getIpAddress());
 //                if (serverThread == null) {
 //                    serverThread = new ServerUDPthread(UDP_PORT, MainActivity.this,hdThread);
@@ -247,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.srv_stop:
                 //TODO: Need debug for good STOP
                 Log.e(TAG, "Button: SERVER STOP");
+                newPublishMessage(TURN_OFF_CANCEL);
 //                if(serverThread != null){
 //                    serverThread.setRunning(false);
 //                    serverThread.interrupt();
