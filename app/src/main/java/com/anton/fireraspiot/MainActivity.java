@@ -197,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //mqttAndroidClient.subscribe(TOPIC, 1);
      //   Log.e("TAG","Subscribe !!!");
     }
+//Check
 
     public void newPublishMessage(String msg) {
         MqttMessage message = new MqttMessage(msg.getBytes());
