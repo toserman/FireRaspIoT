@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">FireRaspIoT</string>
+    <string name="title_activity_living_room">LivingRoomActivity</string>
 </resources>

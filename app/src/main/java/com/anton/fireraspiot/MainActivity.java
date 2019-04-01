@@ -2,6 +2,7 @@ package com.anton.fireraspiot;
 
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     TextView tview_log, tvDelayPower;
     Button btn_pubmsg, btn_stop, btn_clear_textview;
+    Intent lvroomIntent;
     //    ServerUDPthread serverThread;
     private final String TAG = "MY";//;//MainActivity.class.getName();
     static final int UDP_PORT = 48656;
@@ -55,8 +57,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     int DIALOG_TIME = 1;
-    int myHour = 14;
-    int myMinute = 35;
+    int myHour = 0;
+    int myMinute = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +74,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_pubmsg.setOnClickListener(this);
         btn_stop.setOnClickListener(this);
         btn_clear_textview.setOnClickListener(this);
+
+        lvroomIntent = new Intent(this, LivingRoomActivity.class);
+
 
         // FROM INTERNET NEEEED APPLY !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ///https://stackoverflow.com/questions/43038597/android-studio-mqtt-not-connecting
@@ -292,6 +297,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                }
                 break;
             case R.id.clear_textview:
+                startActivity(lvroomIntent); //Only for test
                 Log.e(TAG, "Button: CLEAR TextView");
                 tview_log.setText("");
                 break;
