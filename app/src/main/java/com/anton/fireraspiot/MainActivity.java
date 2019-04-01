@@ -1,5 +1,7 @@
 package com.anton.fireraspiot;
 
+import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 //import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -16,6 +19,7 @@ import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -32,7 +36,7 @@ import java.util.Properties;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, MqttCallback {
 
-    TextView tview_log;
+    TextView tview_log, tvDelayPower;
     Button btn_pubmsg, btn_stop, btn_clear_textview;
     //    ServerUDPthread serverThread;
     private final String TAG = "MY";//;//MainActivity.class.getName();
@@ -43,9 +47,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
    // private final String BROKER_ADDRESS = "tcp://iot.eclipse.org:1883";
     private final String BROKER_ADDRESS = "tcp://test.mosquitto.org:1883";
     private final String TOPIC = "home/livingroom/pc";
+    private final String TURN_ON = "ON";
+    private final String TURN_OFF = "OFF";
+    private final String TURN_OFF_CANCEL = "CANCEL";
     private final MemoryPersistence persistence = new MemoryPersistence();
     public MqttAndroidClient mqttAndroidClient;
 
+
+    int DIALOG_TIME = 1;
+    int myHour = 14;
+    int myMinute = 35;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_clear_textview = findViewById(R.id.clear_textview);
         tview_log = findViewById(R.id.output);
         tview_log.setMovementMethod(new ScrollingMovementMethod());
+        tvDelayPower = findViewById(R.id.tvDelayPower);
 
         btn_pubmsg.setOnClickListener(this);
         btn_stop.setOnClickListener(this);
@@ -99,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mqttConnectOptions.setCleanSession(true);
         mqttConnectOptions.setAutomaticReconnect(true);
 
-
         Log.e("TAG","New Connection:" + BROKER_ADDRESS);
         try {
             mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
@@ -108,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                    try {
                           Log.e("TAG","Connection Success!");
                           tview_log.append("Connection Success " + BROKER_ADDRESS + " ! \n");
-                       //  mqttAndroidClient.subscribe(TOPIC, 1);
+                       ///  mqttAndroidClient.subscribe(TOPIC, 1);
                        // Log.e("TAG","Subscribe !!!");
 //                        System.out.println("Subscribed to /test");
 //                        System.out.println("Publishing message..");
@@ -130,17 +141,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             e.printStackTrace();
         }
 
-////        private void subscribeToTopic() {
+
+
+//        IMqttMessageListener iMqttMessageListener = new IMqttMessageListener() {
+//            @Override
+//            public void messageArrived(String topic, MqttMessage message) throws Exception {
+//            }
+//        };
+//        try {
+//        IMqttToken subToken = mqttAndroidClient.subscribe(TOPIC, 1);
+//            subToken.setActionCallback( new IMqttActionListener() {
+//                @Override
+//                public void onSuccess(IMqttToken asyncActionToken) {
+//                    Log.e("Mqtt","Subscribed!");
+//                }
+//                public void messageArrived(String topic, MqttMessage message) throws Exception {
+//                    Log.e("Mqtt","messageArrived !");
+//                }
+//
+//                @Override
+//                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+//                    Log.e("Mqtt", "Subscribed fail!");
+//                }
+//            });
+//        } catch (MqttException ex) {
+//            System.err.println("Exception subscribing");
+//            ex.printStackTrace();
+//        }
+
+        //private void subscribeToTopic() {
 //            try {
 //                mqttAndroidClient.subscribe(TOPIC, 1, null, new IMqttActionListener() {
 //                    @Override
 //                    public void onSuccess(IMqttToken asyncActionToken) {
-//                        Log.w("Mqtt","Subscribed!");
+//                        Log.e("Mqtt","Subscribed!");
 //                    }
+//                    public void messageArrived(String topic, MqttMessage message) throws Exception {
+//                        Log.e("Mqtt","messageArrived !");
+//                    }
+//
 //
 //                    @Override
 //                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-//                        Log.w("Mqtt", "Subscribed fail!");
+//                        Log.e("Mqtt", "Subscribed fail!");
 //                    }
 //                });
 //
@@ -148,34 +191,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                System.err.println("Exceptionst subscribing");
 //                ex.printStackTrace();
 //            }
-//        }}
-       // mqttAndroidClient.subscribe(TOPIC, 1);
-        //Log.e("TAG","Subscribe !!!");
 
-
-//OLD
-//        Log.e(TAG,"**************************************************");
-//        Log.e("TAG","OLD Connection:" + BROKER_ADDRESS);
-//        try {
-//            MqttClient client = new MqttClient(BROKER_ADDRESS, "AndroidThingSub", new MemoryPersistence());
-//           //  MqttClient client = new MqttClient("tcp://192.168.0.104:1883", "AndroidThingSub", new MemoryPersistence());
-//            //MqttClient client = new MqttClient("tcp://test.mosquitto.org:1883", "AndroidThingSub", new MemoryPersistence());
-//            client.setCallback(this);
-//            client.connect();
-//            //String topic = "MQTT Examples";
-//            Log.e("TAG", "MY START MQtt Subscribe:" + TOPIC);
-//            tview_log.setText("MY START MQtt Subscribe:" + TOPIC);
-//            client.subscribe(TOPIC);
-//
-//
-//        } catch (MqttException e) {
-//            e.printStackTrace();
-//        }
-
+        //}
+        // }
+        //mqttAndroidClient.subscribe(TOPIC, 1);
+     //   Log.e("TAG","Subscribe !!!");
     }
+//Check
 
-    public void newPublishMessage() {
-        MqttMessage message = new MqttMessage("Hello, I am Android Mqtt Client.".getBytes());
+    public void newPublishMessage(String msg) {
+        MqttMessage message = new MqttMessage(msg.getBytes());
         message.setQos(QOS);
         message.setRetained(false);
         try {
@@ -227,26 +252,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    public void onclick(View view) {
+        showDialog(DIALOG_TIME);
+    }
+    protected Dialog onCreateDialog(int id) {
+        if (id == DIALOG_TIME) {
+            TimePickerDialog tpd = new TimePickerDialog(this, myCallBack, 0, 0, true);
+            return tpd;
+        }
+        return super.onCreateDialog(id);
+    }
 
-
+    TimePickerDialog.OnTimeSetListener myCallBack = new TimePickerDialog.OnTimeSetListener() {
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            myHour = hourOfDay;
+            myMinute = minute;
+            tvDelayPower.setText("Time is " + myHour + " hours " + myMinute + " minutes");
+        }
+    };
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.pub_msg:
                 Log.e(TAG, "Button: Publish Message");
                 //publishMessage();
-                newPublishMessage();
-//                tview_log.setText("SERVER STARTED IP:" + getIpAddress());
-//                if (serverThread == null) {
-//                    serverThread = new ServerUDPthread(UDP_PORT, MainActivity.this,hdThread);
-//                    serverThread.setRunning(true);
-//                    serverThread.start();
-//                    tview_log.setText("SERVER STARTED");
-//                }
-                //tview_log.setText(getIpAddress());
+                Log.e(TAG, "Button: Publish Message delay minutes = " + Integer.toString(myMinute) );
+                newPublishMessage(TURN_OFF + ":" + myMinute*60);
+                //TODO: Reset myMinute
+               // newPublishMessage(TURN_OFF + ":" + Integer.toString(myMinute));
+
                 break;
             case R.id.srv_stop:
                 //TODO: Need debug for good STOP
                 Log.e(TAG, "Button: SERVER STOP");
+                newPublishMessage(TURN_OFF_CANCEL);
 //                if(serverThread != null){
 //                    serverThread.setRunning(false);
 //                    serverThread.interrupt();
