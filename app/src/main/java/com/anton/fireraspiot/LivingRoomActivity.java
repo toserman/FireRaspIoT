@@ -37,7 +37,7 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
     private final String TAG = "MY";//;//MainActivity.class.getName();
     static final int QOS = 2;
     final int SECINMIN = 60; //Seconds per minute
-    final int SECINHOUR = 3600;
+    final int SECINHOUR = SECINMIN*SECINMIN; //Seconds per hour
     public Handler hdThread; //Handler for receiving msg from Server Thread
     // private final String BROKER_ADDRESS = "tcp://iot.eclipse.org:1883";
     private final String BROKER_ADDRESS = "tcp://test.mosquitto.org:1883";
@@ -59,13 +59,55 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
         btn_clear_textview = findViewById(R.id.clear_textview);
         tview_log = findViewById(R.id.output);
         tview_log.setMovementMethod(new ScrollingMovementMethod());
-        //tvDelayPower = findViewById(R.id.tvDelayPower);
+
 
         btnPubMsgOff.setOnClickListener(this);
         btnPubMsgCancelOff.setOnClickListener(this);
         btn_clear_textview.setOnClickListener(this);
 
         mqttAndroidClient = new MqttAndroidClient(this.getApplicationContext(), BROKER_ADDRESS, "AndroidThingSub", persistence);
+        MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+        mqttConnectOptions.setCleanSession(true);
+        mqttConnectOptions.setConnectionTimeout(3);
+        mqttConnectOptions.setAutomaticReconnect(true);
+
+        Log.e("TAG","New Connection:" + BROKER_ADDRESS);
+        try {
+            mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    Log.e("TAG","Connection Success!");
+                    tview_log.append("Connection Success " + BROKER_ADDRESS + " ! \n");
+                    try {
+                        mqttAndroidClient.subscribe(TOPIC, 1, null, new IMqttActionListener() {
+                            @Override
+                            public void onSuccess(IMqttToken asyncActionToken) {
+                                Log.e(TAG,"Subscribed!");
+                                tview_log.append("Client Subscribed to " + TOPIC);
+                            }
+                            @Override
+                            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                                Log.e(TAG, "Subscribed fail!");
+                                tview_log.append("Subscribed fail!  " + TOPIC);
+                            }
+                        });
+
+                    } catch (MqttException ex) {
+                        Log.e(TAG, "Exceptionst subscribing");
+                        ex.printStackTrace();
+                    }
+
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    Log.e(TAG,"Connection Failure!");
+                    Log.e(TAG,"throwable: " + exception.toString());
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
         mqttAndroidClient.setCallback(new MqttCallback() {
             @Override
             public void connectionLost(Throwable cause) {
@@ -82,8 +124,6 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void deliveryComplete(IMqttDeliveryToken token) {
                 Log.e("TAG","Delivery Complete!");
-
-//                MqttMessage message = new MqttMessage("Hello, I am Android Mqtt Client.".getBytes());
                 try {
                     MqttMessage message = token.getMessage();
                     message.getPayload();
@@ -96,93 +136,6 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
             }
         });
 
-        MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-        mqttConnectOptions.setCleanSession(true);
-        mqttConnectOptions.setAutomaticReconnect(true);
-
-        Log.e("TAG","New Connection:" + BROKER_ADDRESS);
-        try {
-            mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-//                    try {
-                    Log.e("TAG","Connection Success!");
-                    tview_log.append("Connection Success " + BROKER_ADDRESS + " ! \n");
-                    ///  mqttAndroidClient.subscribe(TOPIC, 1);
-                    // Log.e("TAG","Subscribe !!!");
-//                        System.out.println("Subscribed to /test");
-//                        System.out.println("Publishing message..");
-//                        mqttAndroidClient.publish("/test", new MqttMessage("Hello world testing..!".getBytes()));
-                    //} catch (MqttException e) {
-//                      e.printStackTrace();
-                    //}
-
-                }
-
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.e(TAG,"Connection Failure!");
-                    Log.e(TAG,"throwable: " + exception.toString());
-                }
-            });
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-
-//        IMqttMessageListener iMqttMessageListener = new IMqttMessageListener() {
-//            @Override
-//            public void messageArrived(String topic, MqttMessage message) throws Exception {
-//            }
-//        };
-//        try {
-//        IMqttToken subToken = mqttAndroidClient.subscribe(TOPIC, 1);
-//            subToken.setActionCallback( new IMqttActionListener() {
-//                @Override
-//                public void onSuccess(IMqttToken asyncActionToken) {
-//                    Log.e("Mqtt","Subscribed!");
-//                }
-//                public void messageArrived(String topic, MqttMessage message) throws Exception {
-//                    Log.e("Mqtt","messageArrived !");
-//                }
-//
-//                @Override
-//                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-//                    Log.e("Mqtt", "Subscribed fail!");
-//                }
-//            });
-//        } catch (MqttException ex) {
-//            System.err.println("Exception subscribing");
-//            ex.printStackTrace();
-//        }
-
-        //private void subscribeToTopic() {
-//            try {
-//                mqttAndroidClient.subscribe(TOPIC, 1, null, new IMqttActionListener() {
-//                    @Override
-//                    public void onSuccess(IMqttToken asyncActionToken) {
-//                        Log.e("Mqtt","Subscribed!");
-//                    }
-//                    public void messageArrived(String topic, MqttMessage message) throws Exception {
-//                        Log.e("Mqtt","messageArrived !");
-//                    }
-//
-//
-//                    @Override
-//                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-//                        Log.e("Mqtt", "Subscribed fail!");
-//                    }
-//                });
-//
-//            } catch (MqttException ex) {
-//                System.err.println("Exceptionst subscribing");
-//                ex.printStackTrace();
-//            }
-
-        //}
-        // }
-        //mqttAndroidClient.subscribe(TOPIC, 1);
-        //   Log.e("TAG","Subscribe !!!");
     }
 
     public void showTimePickerDialog(View v) {
@@ -190,7 +143,7 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
         timeDelayFragment.show(getSupportFragmentManager(), "timePicker");
     }
 
-    public void newPublishMessage(String msg) {
+    public void publishMessage(String msg) {
         MqttMessage message = new MqttMessage(msg.getBytes());
         message.setQos(QOS);
         message.setRetained(false);
@@ -202,46 +155,7 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    public void publishMessage () {
-        try {
-            MqttClient client = new MqttClient(BROKER_ADDRESS, "AndroidThingSub", new MemoryPersistence());
-            //MqttClient client = new MqttClient("tcp://192.168.0.104:1883", "AndroidThingSub", new MemoryPersistence());
-            //MqttClient client = new MqttClient("tcp://test.mosquitto.org:1883", "AndroidThingSub", new MemoryPersistence());
 
-            //String topic = "MQTT Examples";
-            Log.e("TAG", "MY MQtt Publish :");
-            // tview_log.append("MY MQtt Publish Message");
-
-            MqttMessage message = new MqttMessage("Hello, I am Android Mqtt Client.".getBytes());
-            message.setQos(QOS);
-            message.setRetained(false);
-
-
-            client.publish(TOPIC, message);
-            //client.getPendingDeliveryTokens();
-//            IMqttDeliveryToken [] test = client.getPendingDeliveryTokens();
-
-
-            //client.publish("MQTT Examples","Hello, I am Android Mqtt Client.".getBytes(),1,true);
-            tview_log.append("Message published\n");
-
-//                    MQTTClient_message pubmsg = MQTTClient_message_initializer;
-            //MQTTClient_deliveryToken token;
-//
-//                    MQTTClient_create(&client, ADDRESS, CLIENTID, MQTTCLIENT_PERSISTENCE_NONE, NULL);
-//                     pubmsg.payload = PAYLOAD;
-//                    pubmsg.payloadlen = strlen(PAYLOAD);
-//                    pubmsg.qos = QOS;
-//                    pubmsg.retained = 0;
-//                    MQTTClient_publishMessage(client, TOPIC, &pubmsg, &token);
-//                    MqttMessage msg = new MqttMessage();
-//                    msg.setPayload("Hello IoT");
-//                    client.publish(topic,"HELLO IoT",1,true);
-
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void onClick(View v) {
         switch (v.getId()) {
@@ -255,12 +169,12 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
                     resDelay = timeDelayFragment.getHour() * SECINHOUR + timeDelayFragment.getMinute() * SECINMIN;
                 }
                 Log.e(TAG, "Button: TEST resDelay = " + Integer.toString(resDelay));
-                newPublishMessage(TURN_OFF + ":" + resDelay);
+                publishMessage(TURN_OFF + ":" + resDelay);
                //TODO: Reset myMinute
                 break;
             case R.id.pub_msg_cancelOff:
                 Log.e(TAG, "Button: Publish Message CANCEL OFF PC");
-                newPublishMessage(TURN_OFF_CANCEL);
+                publishMessage(TURN_OFF_CANCEL);
                 break;
             case R.id.clear_textview:
                 Log.e(TAG, "Button: CLEAR TextView");
