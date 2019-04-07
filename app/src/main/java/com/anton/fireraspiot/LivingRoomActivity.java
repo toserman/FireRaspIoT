@@ -25,6 +25,8 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Enumeration;
 
 
@@ -67,9 +69,10 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
 
         mqttAndroidClient = new MqttAndroidClient(this.getApplicationContext(), BROKER_ADDRESS, "AndroidThingSub", persistence);
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-        mqttConnectOptions.setCleanSession(true);
+        mqttConnectOptions.setCleanSession(false); //false for receiving missed messages
         mqttConnectOptions.setConnectionTimeout(3);
         mqttConnectOptions.setAutomaticReconnect(true);
+
 
         Log.e("TAG","New Connection:" + BROKER_ADDRESS);
         try {
@@ -83,20 +86,18 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
                             @Override
                             public void onSuccess(IMqttToken asyncActionToken) {
                                 Log.e(TAG,"Subscribed!");
-                                tview_log.append("Client Subscribed to " + TOPIC);
+                                tview_log.append("Client Subscribed to " + TOPIC + "\n");
                             }
                             @Override
                             public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                                 Log.e(TAG, "Subscribed fail!");
-                                tview_log.append("Subscribed fail!  " + TOPIC);
+                                tview_log.append("Subscribed fail!  " + TOPIC + "\n");
                             }
                         });
-
                     } catch (MqttException ex) {
                         Log.e(TAG, "Exceptionst subscribing");
                         ex.printStackTrace();
                     }
-
                 }
 
                 @Override
@@ -118,7 +119,8 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 Log.e("TAG","Message Arrived!: " + topic + ": " + new String(message.getPayload()));
-                tview_log.append("MSG Received: " + message.toString() + "\n");
+                String date = new SimpleDateFormat("MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
+                tview_log.append(date + " MSG Received: " + message.toString() + "\n");
             }
 
             @Override
@@ -155,7 +157,8 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-
+    //TODO: Need Investigate
+//mqttAndroidClient.publish("$SYS/broker/connection/AndroidThingSub/state", message);
 
     public void onClick(View v) {
         switch (v.getId()) {
