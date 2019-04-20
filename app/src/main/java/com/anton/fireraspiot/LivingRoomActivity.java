@@ -41,8 +41,9 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
     final int SECINMIN = 60; //Seconds per minute
     final int SECINHOUR = SECINMIN*SECINMIN; //Seconds per hour
     public Handler hdThread; //Handler for receiving msg from Server Thread
-    // private final String BROKER_ADDRESS = "tcp://iot.eclipse.org:1883";
-    private final String BROKER_ADDRESS = "tcp://test.mosquitto.org:1883";
+    //private final String BROKER_ADDRESS = "tcp://iot.eclipse.org:1883";
+    //private final String BROKER_ADDRESS = "tcp://test.mosquitto.org:1883";
+    private final String BROKER_ADDRESS = "tcp://192.168.0.106:1883";
     private final String TOPIC = "home/livingroom/pc";
     private final String TURN_ON = "ON";
     private final String TURN_OFF = "OFF";
