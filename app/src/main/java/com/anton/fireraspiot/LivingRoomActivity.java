@@ -48,6 +48,7 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
     private final String TURN_ON = "ON";
     private final String TURN_OFF = "OFF";
     private final String TURN_OFF_CANCEL = "CANCEL";
+    private final String CHECK_STATUS = "STATUS";
     private final MemoryPersistence persistence = new MemoryPersistence();
     public MqttAndroidClient mqttAndroidClient;
 
@@ -121,7 +122,21 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 Log.e("TAG","Message Arrived!: " + topic + ": " + new String(message.getPayload()));
                 String date = new SimpleDateFormat("MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
-                tview_log.append(date + " MSG Received: " + message.toString() + "\n");
+                String payload = new String(message.getPayload());
+                tview_log.append(date + " MSG Arrived: " + payload + "\n");
+                switch (payload) {
+                    case "PC_ON":
+                        tview_log.append("MSG Arrived PC_ON OK !!!\n");
+                        publishMessage(TURN_OFF + ":" + resDelay);
+                        break;
+//                    case "OFF":
+//                        Log.d(TAG, "LED OFF");
+//                        ledPin.setValue(false);
+//                        break;
+                    default:
+                        Log.d(TAG, "Message not supported " + payload );
+                        break;
+                }
             }
 
             @Override
@@ -172,8 +187,9 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
                     Log.e(TAG, "Button: TEST minute = " + Integer.toString(timeDelayFragment.getMinute()));
                     resDelay = timeDelayFragment.getHour() * SECINHOUR + timeDelayFragment.getMinute() * SECINMIN;
                 }
-                Log.e(TAG, "Button: TEST resDelay = " + Integer.toString(resDelay));
-                publishMessage(TURN_OFF + ":" + resDelay);
+//                Log.e(TAG, "Button: TEST resDelay = " + Integer.toString(resDelay));
+//                //publishMessage(TURN_OFF + ":" + resDelay);
+                publishMessage(CHECK_STATUS);
                //TODO: Reset myMinute
                 break;
             case R.id.pub_msg_cancelOff:
@@ -186,6 +202,8 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
                 break;
         }
     }
+
+
 
     @Override
     public void connectionLost(Throwable cause) {
