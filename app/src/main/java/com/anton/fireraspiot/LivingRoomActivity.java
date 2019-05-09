@@ -71,12 +71,10 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
 
         mqttAndroidClient = new MqttAndroidClient(this.getApplicationContext(), BROKER_ADDRESS, "AndroidThingSub", persistence);
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-        mqttConnectOptions.setCleanSession(false); //false for receiving missed messages
+        mqttConnectOptions.setCleanSession(true); //false for receiving missed messages
         mqttConnectOptions.setConnectionTimeout(3);
         mqttConnectOptions.setAutomaticReconnect(true);
 
-
-        Log.e("TAG","New Connection:" + BROKER_ADDRESS);
         try {
             mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
                 @Override
