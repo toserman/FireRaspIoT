@@ -32,9 +32,8 @@ import java.util.Enumeration;
 
 public class LivingRoomActivity extends AppCompatActivity implements View.OnClickListener, MqttCallback {
     TextView tview_log;
-    Button btnPubMsgOff, btnPubMsgCancelOff, btn_clear_textview;
+    Button btnPubMsgOff, btnPubMsgOn, btnPubMsgCancelOff, btn_clear_textview;
     TimePickerFragment timeDelayFragment;
-
 
     private final String TAG = "MY";//;//MainActivity.class.getName();
     static final int QOS = 2;
@@ -59,13 +58,14 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_living_room);
         btnPubMsgOff = findViewById(R.id.pub_msg_off);
+        btnPubMsgOn= findViewById(R.id.pub_msg_on);
         btnPubMsgCancelOff = findViewById(R.id.pub_msg_cancelOff);
         btn_clear_textview = findViewById(R.id.clear_textview);
         tview_log = findViewById(R.id.output);
         tview_log.setMovementMethod(new ScrollingMovementMethod());
 
-
         btnPubMsgOff.setOnClickListener(this);
+        btnPubMsgOn.setOnClickListener(this);
         btnPubMsgCancelOff.setOnClickListener(this);
         btn_clear_textview.setOnClickListener(this);
 
@@ -193,6 +193,10 @@ public class LivingRoomActivity extends AppCompatActivity implements View.OnClic
             case R.id.pub_msg_cancelOff:
                 Log.e(TAG, "Button: Publish Message CANCEL OFF PC");
                 publishMessage(TURN_OFF_CANCEL);
+                break;
+            case R.id.pub_msg_on:
+                Log.e(TAG, "Button: Publish Message TURN ON PC");
+                publishMessage(TURN_ON);
                 break;
             case R.id.clear_textview:
                 Log.e(TAG, "Button: CLEAR TextView");
